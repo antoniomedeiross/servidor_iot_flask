@@ -16,7 +16,7 @@ class Temperatura(db.Model):
 
 
     def __repr__(self):
-        return f"Temperatura {self.temperatura}>"
+        return f"Temperatura {self.temperatura}>°C @ {self.data_hora}"
 with app.app_context():
     db.create_all()
 
@@ -32,11 +32,14 @@ def temperatura_post():
     temperatura = dados.get("temperatura")
 
     if temperatura:
-        novaTemp = Temperatura(temperatura=float(temperatura))
-        dataHora = novaTemp.data_hora
+        try:
+            novaTemp = Temperatura(temperatura=float(temperatura))
+        except:
+            return ({"erro": "temperatura inválida."})
         db.session.add(novaTemp)
         db.session.commit()
-        return jsonify({"mensagem":f"Temperatura:{temperatura}°C salva com sucesso!"}), 201
+        return jsonify({"mensagem":f"Temperatura:{temperatura}°C salva com sucesso!",
+                        "data/hora": novaTemp.data_hora.isoformat()}), 201
     else:
         return ({"erro": "Nenhuma temperatura fornecida."}),400
 
@@ -45,7 +48,7 @@ def temperatura_post():
 def temperatura_get():
     ultimaTemp = Temperatura.query.order_by(Temperatura.id.desc()).first()
     if ultimaTemp:
-        return f"Última temperatura registrada: {ultimaTemp.temperatura}°C"
+        return render_template("ultima_temperatura.html", temperatura= ultimaTemp.temperatura)
     else:
         return "Nenhuma temperatura registrada."
 

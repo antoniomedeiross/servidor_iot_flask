@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>todas as temperaturas</title>
+  <title>ultima temperatura</title>
   <link rel="stylesheet" href="/static/global_styles.css">
 </head>
 <body>
 
-  <h1>Temperaturas registradas 🌡️</h1>
+  <h1>Última temperatura 🌡️</h1>
   <ul>
-    {% for temp in temperaturas %}
-        <li>Temperatura: {{ temp.temperatura }}°C</li>
+    {% if temperatura %}
+        <li>Última temperatura : {{ temperatura }}°C</li>
     {% else %}
         <li>Nenhuma temperatura registrada ainda.</li>
-    {% endfor %}
+    {% endif %}
   </ul>
   <a href="/">
     <button>voltar</button>
