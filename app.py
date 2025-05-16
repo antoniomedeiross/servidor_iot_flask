@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
@@ -9,6 +11,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
+SENHA = os.getenv("SENHA")
 class Temperatura(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     temperatura = db.Column(db.Float, nullable=False)
@@ -28,20 +33,24 @@ def home():
 
 @app.route("/temperatura", methods=["POST"])
 def temperatura_post():
-    dados = request.get_json()
-    temperatura = dados.get("temperatura")
-
-    if temperatura:
-        try:
-            novaTemp = Temperatura(temperatura=float(temperatura))
-        except:
-            return ({"erro": "temperatura inválida."})
-        db.session.add(novaTemp)
-        db.session.commit()
-        return jsonify({"mensagem":f"Temperatura:{temperatura}°C salva com sucesso!",
-                        "data/hora": novaTemp.data_hora.isoformat()}), 201
+    token = request.headers.get("Authorization")
+    if token != SENHA:
+        return ({"erro": "Acesso não autorizado."}), 401
     else:
-        return ({"erro": "Nenhuma temperatura fornecida."}),400
+        dados = request.get_json()
+        temperatura = dados.get("temperatura")
+
+        if temperatura:
+            try:
+                novaTemp = Temperatura(temperatura=float(temperatura))
+            except:
+                return ({"erro": "temperatura inválida."})
+            db.session.add(novaTemp)
+            db.session.commit()
+            return jsonify({"mensagem":f"Temperatura:{temperatura}°C salva com sucesso!",
+                            "data/hora": novaTemp.data_hora.isoformat()}), 201
+        else:
+            return ({"erro": "Nenhuma temperatura fornecida."}),400
 
 # Retora a temperatura GET
 @app.route("/temperatura", methods=["GET"])
