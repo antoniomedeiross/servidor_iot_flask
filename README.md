@@ -33,7 +33,7 @@ Siga os passos abaixo para configurar e executar o projeto localmente.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone <URL_DO_REPOSITORIO>
+    git clone https://github.com/antoniomedeiross/servidor_iot_flask.git
     cd servidor_iot_flask
     ```
 
